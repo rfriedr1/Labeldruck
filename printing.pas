@@ -10,26 +10,25 @@ uses Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
   FireDAC.Stan.Error, FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool,
   FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.MySQL, FireDAC.Phys.MySQLDef,
   FireDAC.VCLUI.Login, FireDAC.VCLUI.Error, FireDAC.Stan.Param, FireDAC.DatS,
-  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Printers,
+  JvBaseDlg, JvAddPrinter, Vcl.Menus, JvAppStorage, JvAppIniStorage;
 
 type
   TlblStatus = (busy, saved, notsaved);
 
 const
-  Version = 'v1.6 2016-09-15';
+  myVersion = 'v1.9.4 2020-05-05';
 
 type
   TLabeldruck = class(TForm)
     Panel1: TPanel;
     Panel2: TPanel;
-    PageControl1: TPageControl;
+    TabControlMain: TPageControl;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     btnCancel: TButton;
-    edtSampleNrStart: TLabeledEdit;
     btnFind: TButton;
     cbBarcode: TCheckBox;
-    btnPrint: TButton;
     btnReset: TButton;
     edspCopyCount: TJvSpinEdit;
     DataSource1: TDataSource;
@@ -83,7 +82,6 @@ type
     Label_Copies: TLabel;
     WaitCursor: TFDGUIxWaitCursor;
     GroupBox1: TGroupBox;
-    edtSampleNrEnd: TLabeledEdit;
     DBGrid1: TDBGrid;
     FDConnection1: TFDConnection;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
@@ -92,6 +90,51 @@ type
     FDQueryDBSample: TFDQuery;
     FDQueryDbUser: TFDQuery;
     FDPhysMySQLDriverLink1: TFDPhysMySQLDriverLink;
+    tbCustomLabels: TTabSheet;
+    CustomEditL1: TEdit;
+    CustomEditL2: TEdit;
+    CustomEditL3: TEdit;
+    Label1: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    edspCopyCountCustom: TJvSpinEdit;
+    btnPrintCustom: TButton;
+    Label7: TLabel;
+    CustomEditL4: TEdit;
+    CharsLeftL1: TStaticText;
+    CharsLeftL2: TStaticText;
+    CharsLeftL3: TStaticText;
+    CharsLeftL4: TStaticText;
+    PrinterSetupDialog1: TPrinterSetupDialog;
+    btn_PrinterSetupDlg: TButton;
+    PrintDialog1: TPrintDialog;
+    grp_Printer: TGroupBox;
+    lbl_printerName: TLabel;
+    grp_labelSettings: TGroupBox;
+    PopupMenu1: TPopupMenu;
+    edtSampleNrStart: TJvSpinEdit;
+    edtSampleNrEnd: TJvSpinEdit;
+    lblFrom: TLabel;
+    lblTo: TLabel;
+    btnPrint: TButton;
+    JvAppIniFileStorage1: TJvAppIniFileStorage;
+    TabSheetBatchLabels: TTabSheet;
+    DBGridBatches: TDBGrid;
+    FDQueryBatches: TFDQuery;
+    DataSourceBatches: TDataSource;
+    Label8: TLabel;
+    DBGridSamplesInBatch: TDBGrid;
+    Label9: TLabel;
+    FDQuerySamplesInBatch: TFDQuery;
+    DataSourceSamplesInBatch: TDataSource;
+    ButtonPrintBatchLabels: TButton;
+    edspCopyCountBatches: TJvSpinEdit;
+    Label10: TLabel;
+    Panel3: TPanel;
+    ButtonReloadBatches: TBitBtn;
+    cbBarcodeBatches: TCheckBox;
+    Panel4: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnFindClick(Sender: TObject);
     procedure btnPrintClick(Sender: TObject);
@@ -119,6 +162,18 @@ type
     procedure lblPrintPosClick(Sender: TObject);
     procedure edtSampleNrStartChange(Sender: TObject);
     procedure FDConnection1AfterConnect(Sender: TObject);
+    procedure btnPrintCustomClick(Sender: TObject);
+    procedure CustomEditL1Change(Sender: TObject);
+    procedure CustomEditL2Change(Sender: TObject);
+    procedure CustomEditL3Change(Sender: TObject);
+    procedure CustomEditL4Change(Sender: TObject);
+    procedure btn_PrinterSetupDlgClick(Sender: TObject);
+    procedure btn_selectPrinterClick(Sender: TObject);
+    procedure ButtonReloadBatchesClick(Sender: TObject);
+    procedure DBGridBatchesCellClick(Column: TColumn);
+    procedure TabSheetBatchLabelsEnter(Sender: TObject);
+    procedure TabControlMainChange(Sender: TObject);
+    procedure ButtonPrintBatchLabelsClick(Sender: TObject);
   private
     User_Label, target_nr, prep_nr: string;
     counter, PrintPosition: integer;
@@ -126,6 +181,8 @@ type
     function GetMaxPrepNrBySampleNr(sample_nr: integer): integer;
     function GetMaxTargetNrBySampleNr(sample_nr: integer): integer;
     procedure ChangeLabel(status: TlblStatus);
+    procedure SelectPrinter;
+    procedure LoadBatches;
     { Private declarations }
   public
     { Public declarations }
@@ -142,6 +199,7 @@ uses Utilities, ConvUtils;
 
 var
   L1L1, L1L2, L1L3, L1L4, L1bc, L2L1, L2L2, L2L3, L2L4, L2bc: string;
+  MyPrinterName: string; // stores the printer name of the selected printer
 
 function StringToCaseSelect //DruckAnzahl str to case
   (Selector: string;
@@ -165,6 +223,7 @@ procedure TLabeldruck.btnFindClick(Sender: TObject);
 var
   s, t, Name: string;
   Ntar, Nprep: integer;
+
 begin
   case StringToCaseSelect(edtSampleNrStart.Text,['']) of   //Wenn sample_nr leer -> abbrechen
     0: Exit;
@@ -176,8 +235,11 @@ begin
   Begin
   // run this when Start and End Sample Nr are the same aka only one label is being printed
     //Query
-    t := 'Select sample_nr, last_name, user_label, user_label_nr from user_t inner join project_t on project_t.user_nr=user_t.user_nr ' +
-      'inner join sample_t on project_t.project_nr=sample_t.project_nr where sample_nr=' + edtSampleNrStart.Text + ';';
+    t := 'Select sample_nr, last_name, user_label, user_label_nr, cast(return_to_sender as CHAR) AS ReturnSample, cast(CNIsotopA as CHAR) AS CNAna ' +
+         'FROM user_t ' +
+         'INNER JOIN project_t on project_t.user_nr=user_t.user_nr ' +
+         'INNER JOIN sample_t on project_t.project_nr=sample_t.project_nr ' +
+         'where sample_nr=' + edtSampleNrStart.Text + ';';
     FDQueryDbUser.SQL.Text := t;
     FDQueryDbUser.Open;
 
@@ -213,8 +275,11 @@ begin
     // start and End Sample Number are not the same
     // display multiple sample info in Memo field
     // run query and ask for all samples in this range
-    t := 'Select sample_nr, last_name, user_label, user_label_nr from user_t inner join project_t on project_t.user_nr=user_t.user_nr ' +
-            'inner join sample_t on project_t.project_nr=sample_t.project_nr where sample_nr BETWEEN ' + edtSampleNrStart.Text + ' AND ' + edtSampleNrEnd.Text + ';';
+    t := 'SELECT sample_nr, last_name, user_label, user_label_nr, cast(return_to_sender as CHAR) AS ReturnSample, cast(CNIsotopA as CHAR) AS CNAna ' +
+         'FROM user_t ' +
+         'INNER JOIN project_t on project_t.user_nr=user_t.user_nr ' +
+         'INNER JOIN sample_t on project_t.project_nr=sample_t.project_nr ' +
+         'WHERE sample_nr BETWEEN ' + edtSampleNrStart.Text + ' AND ' + edtSampleNrEnd.Text + ';';
     //ShowMessage(t);
     FDQueryDbUser.SQL.Text := t;
     FDQueryDbUser.Open;
@@ -281,18 +346,18 @@ end;
 
 procedure TLabeldruck.btnResetLeftClick(Sender: TObject); //Wiederherstellen Label1 Einstellungen
 begin
-  lbledLabel1Line1.Text := '0006';
-  lbledLabel1Line2.Text := '0006';
-  lbledLabel1Line3.Text := '0006';
-  lbledLabel1bc.Text := '0017';
+  lbledLabel1Line1.Text := '0011';
+  lbledLabel1Line2.Text := '0011';
+  lbledLabel1Line3.Text := '0011';
+  lbledLabel1bc.Text := '0099';
 end;
 
 procedure TLabeldruck.btnResetRightClick(Sender: TObject); //Wiederherstellen Label2 Einstellungen
 begin
-  lbledLabel2Line1.Text := '0138';
-  lbledLabel2Line2.Text := '0138';
-  lbledLabel2Line3.Text := '0138';
-  lbledLabel2bc.Text := '0150';
+  lbledLabel2Line1.Text := '0144';
+  lbledLabel2Line2.Text := '0144';
+  lbledLabel2Line3.Text := '0144';
+  lbledLabel2bc.Text := '0232';
 end;
 
 procedure TLabeldruck.btnSaveClick(Sender: TObject);
@@ -453,6 +518,22 @@ begin
 end;
 
 
+procedure TLabeldruck.btn_PrinterSetupDlgClick(Sender: TObject);
+begin
+  // show printer setup dialog in order to select a printer
+  PrinterSetupDialog1.Execute();
+  //ShowMessage('Printer selected: '+ Printer.Printers[Printer.PrinterIndex]);
+  // display selected printer name
+  lbl_printerName.Caption := Printer.Printers[Printer.PrinterIndex];
+
+end;
+
+procedure TLabeldruck.btn_selectPrinterClick(Sender: TObject);
+begin
+  PrintDialog1.Execute();
+  ShowMessage('Printer selected: '+ Printer.Printers[Printer.PrinterIndex]);
+end;
+
 procedure TLabeldruck.Button1Click(Sender: TObject);
 var
   UserLabel1, UserLabel2: string;
@@ -466,10 +547,93 @@ begin
   end;
 end;
 
+procedure TLabeldruck.ButtonPrintBatchLabelsClick(Sender: TObject);
+Var
+  UserLabel, UserLabel1, UserLabel2, User, UserNew, UserLabelNr, Count, Number, SampleIDString: string;
+  SampleNumber, PrepNumber, TargetNumber, ReturnSample, CNIsotopA: string;
+  Barcode: boolean;
+  i: integer;
+begin
+  If DBGridSamplesInBatch.DataSource.DataSet.RecordCount >0 Then
+  Begin
+        // go through all Records and print them
+      DBGridSamplesInBatch.DataSource.DataSet.First;
+      while DBGridSamplesInBatch.DataSource.DataSet.Eof=false do
+          Begin
+          SampleNumber := DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('sample_nr').AsString;
+          PrepNumber := DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('prep_nr').AsString;
+          TargetNumber := DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('target_nr').AsString;
+          SampleIDString := SampleNumber + '.' + PrepNumber + '.' + TargetNumber;
+          // showmessage(SampleIDString);
+
+          User := Copy(DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('last_name').AsString, 0, 20);
+          // replace Umlaute
+          UserNew := ReplaceUmlaute(User);
+          // ShowMessage(User + ' -- ' + UserNew);
+
+          Number := edspCopyCountBatches.Text;
+          case StringToCaseSelect(Number,['2', '4', '6', '8', '10']) of  //Umwandeln von Text zu den Anzahl Kopien
+            0: Count := '1';
+            1: Count := '2';
+            2: Count := '3';
+            3: Count := '4';
+            4: Count := '5';
+          end;
+          // ShowMessage(Count);
+
+          if Length(DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('user_label').AsString) > 20 then
+            begin
+              UserLabel1 := Copy(DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 0, 18);
+              UserLabel2 := Copy(DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 19, Length(DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('user_label').AsString));
+            end
+          else
+            begin
+              UserLabel2 := Copy(DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 0, 20); //Copy: Beschr‰nken auf 20 Zeichen
+              UserLabel1 := ' ';
+            end;
+            // showmessage(UserLabel1 + '--' + UserLabel2);
+
+          Barcode := cbBarcodeBatches.Checked; //Barcode wird gedruckt
+          // showmessage(booltostr(Barcode));
+
+          Try
+            ReturnSample := DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('ReturnSample').AsString; // this is a flag, can only be '0' or '1'
+            // showmessage(ReturnSample);
+          Except
+            ReturnSample := '0';
+            //showmessage('Error');
+          End;
+          Try
+            CNIsotopA := DBGridSamplesInBatch.DataSource.DataSet.Fields.FieldByName('CNAna').AsString; // this is a flag, can only be '0' or '1'
+            // showmessage(CNIsotopA);
+          Except
+            CNIsotopA := '0';
+          End;
+
+        // ####################################
+          // send print string to printer
+          // select the printer first (either selected already or dialog will appear)
+          // this procedures sets the MyPrinterName Variable
+          SelectPrinter;
+          // Print
+          PrintLabelVar(MyPrinterName, SampleIDString, UserLabel1, UserLabel2, //Printer, L1, L2
+            UserNew, 'Q000' + Count, SampleNumber, L1L1, L1L2, L1L3, L1L4, L1bc,
+            L2L1, L2L2, L2L3, L2L4, L2bc, Barcode, ReturnSample, CNIsotopA);
+
+          DBGridSamplesInBatch.DataSource.DataSet.Next;
+    end;
+  End;
+end;
+
+procedure TLabeldruck.ButtonReloadBatchesClick(Sender: TObject);
+begin
+  LoadBatches;
+end;
+
 procedure TLabeldruck.PrintGraphClick(Sender: TObject);
 var
   i: integer;
-  UserLabel, UserLabel1, UserLabel2, User, UserLabelNr, Count, Number, PrintString: string;
+  UserLabel, UserLabel1, UserLabel2, User, UserNew, UserLabelNr, Count, Number, PrintString: string;
   Barcode: boolean;
 begin
 
@@ -501,6 +665,8 @@ for i := 1 to StrGrdPrintGraph.RowCount-1 do begin
       end;
       //ShowMessage('User label gemacht2');
       User := Copy(Cells[4, i], 0, 20);
+      // replace Umlaute
+      UserNew := ReplaceUmlaute(User);
       Count := '1';
       PrintString := Cells[0, i] + '.' + Cells[1, i] + '.' + Cells[2, i] + ' ' + Cells[3, i];
       Barcode := false; //Barcode wird nicht gedruckt
@@ -509,9 +675,14 @@ for i := 1 to StrGrdPrintGraph.RowCount-1 do begin
       User, 'Q000' + Count, edInput.Text, L1L1, L1L2, L1L3, L1L4, L1bc,
       L2L1, L2L2, L2L3, L2L4, L2bc, Barcode); *)
 
-      PrintLabelVar('Citizen_CLP_631', PrintString, UserLabel1, UserLabel2, //Printer, L1, L2
-        User, 'Q000' + Count, Cells[0, i], L1L1, L1L2, L1L3, L1L4, L1bc,
-        L2L1, L2L2, L2L3, L2L4, L2bc, Barcode);
+
+      // ############################
+      // select the printer first (either selected already or dialog will appear)
+      // this procedures sets the MyPrinterName Variable
+      SelectPrinter;
+      PrintLabelVar(MyPrinterName, PrintString, UserLabel1, UserLabel2, //Printer, L1, L2
+        UserNew, 'Q000' + Count, Cells[0, i], L1L1, L1L2, L1L3, L1L4, L1bc,
+        L2L1, L2L2, L2L3, L2L4, L2bc, Barcode, '0', '0');
 
         sleep(500);
     end;
@@ -537,6 +708,131 @@ begin
   //lblStatus.Visible := true;
 end;
 
+procedure TLabeldruck.SelectPrinter;
+begin
+  // select printer first if it wasn't selected already (duriong this runtime of the program)
+  if (MyPrinterName = 'none') then
+  begin
+    //MyPrinterName variable stores the printer name. After startup of the program it will be 'none'
+    // showing that a printer wasn't selected yet
+    PrinterSetupDialog1.Execute;
+    lbl_printerName.Caption := Printer.Printers[Printer.PrinterIndex];
+    MyPrinterName := Printer.Printers[Printer.PrinterIndex];
+  end;
+end;
+
+procedure TLabeldruck.TabControlMainChange(Sender: TObject);
+begin
+ Case TabControlMain.ActivePageIndex of
+  1: LoadBatches;
+  2: btnLoadClick(Self);
+ End;
+end;
+
+procedure TLabeldruck.TabSheetBatchLabelsEnter(Sender: TObject);
+begin
+   LoadBatches;
+end;
+
+procedure TLabeldruck.LoadBatches;
+begin
+  with FDQueryBatches do
+  begin
+    SQL.Text := 'SELECT distinct graph_batch FROM target_t t ' +
+    'inner join preparation_t p on t.sample_nr=p.sample_nr  ' +
+    'WHERE prep_end > DATE_SUB(now(), INTERVAL 3 MONTH) ' +
+    'and graph_batch IS NOT NULL AND graph_date IS NULL ' +
+    'order by prep_end desc; ';
+    open;
+  end;
+end;
+
+procedure TLabeldruck.CustomEditL1Change(Sender: TObject);
+// display the charactersLeft in this Line
+// max = 18
+begin
+ CharsLeftL1.Caption := inttostr(18 - Length((Sender as TEdit).Text));
+end;
+
+procedure TLabeldruck.CustomEditL2Change(Sender: TObject);
+begin
+ CharsLeftL2.Caption := inttostr(18 - Length((Sender as TEdit).Text));
+end;
+
+procedure TLabeldruck.CustomEditL3Change(Sender: TObject);
+begin
+ CharsLeftL3.Caption := inttostr(18 - Length((Sender as TEdit).Text));
+end;
+
+procedure TLabeldruck.CustomEditL4Change(Sender: TObject);
+begin
+ CharsLeftL4.Caption := inttostr(18 - Length((Sender as TEdit).Text));
+end;
+
+procedure TLabeldruck.DBGridBatchesCellClick(Column: TColumn);
+Var
+  s: string;
+  i,j: integer;
+begin
+  with FDQuerySamplesInBatch do
+  begin
+(*
+      s := 'SELECT sample_nr, prep_nr, target_nr, weight_combustion' +
+        ' FROM target_t' +
+        ' WHERE graph_batch =' + #34 + DataSourceBatches.DataSet.FieldByName('graph_batch').AsString + #34 +
+        ' ORDER BY sample_nr, target_nr' +
+        ';';
+*)
+    s := 'SELECT target_t.sample_nr, prep_nr, target_nr, last_name, user_label, user_label_nr, cast(return_to_sender as CHAR) AS ReturnSample, cast(CNIsotopA as CHAR) AS CNAna '+
+         'FROM target_t ' +
+         'INNER JOIN sample_t ON target_t.sample_nr = sample_t.sample_nr '+
+         'INNER JOIN project_t on sample_t.project_nr = project_t.project_nr '+
+         'INNER JOIN user_t on project_t.user_nr=user_t.user_nr '+
+         'WHERE graph_batch =' + #34 + DataSourceBatches.DataSet.FieldByName('graph_batch').AsString + #34 +
+         ';';
+    SQL.Text := s;
+    open;
+  end;
+
+    DBGridSamplesInBatch.Columns[0].Width:=80;
+    DBGridSamplesInBatch.Columns[1].Width:=60;
+    DBGridSamplesInBatch.Columns[2].Width:=60;
+    DBGridSamplesInBatch.Columns[3].Width:=100;
+    DBGridSamplesInBatch.Columns[4].Width:=100;
+    DBGridSamplesInBatch.Columns[5].Width:=100;
+    DBGridSamplesInBatch.Columns[6].Width:=100;
+    DBGridSamplesInBatch.Columns[7].Width:=100;
+
+    ChangeLabel(saved);
+    L1L1 := lbledLabel1Line1.Text;
+    L1L2 := lbledLabel1Line2.Text;
+    L1L3 := lbledLabel1Line3.Text;
+    L1L4 := lbledLabel1Line4.Text;
+    L1bc := lbledLabel1bc.Text;
+    L2L1 := lbledLabel2Line1.Text;
+    L2L2 := lbledLabel2Line2.Text;
+    L2L3 := lbledLabel2Line3.Text;
+    L2L4 := lbledLabel2Line4.Text;
+    L2bc := lbledLabel2bc.Text;
+    grdPrintSet.Cells[0, 1] := 'Label 1';
+    grdPrintSet.Cells[0, 2] := 'Label 2';
+    grdPrintSet.Cells[1, 0] := 'Linie 1';
+    grdPrintSet.Cells[2, 0] := 'Linie 2';
+    grdPrintSet.Cells[3, 0] := 'Linie 3';
+    grdPrintSet.Cells[4, 0] := 'Barcode';
+    grdPrintSet.Cells[1, 1] := L1L1;
+    grdPrintSet.Cells[2, 1] := L1L2;
+    grdPrintSet.Cells[3, 1] := L1L3;
+    grdPrintSet.Cells[4, 1] := L1bc;
+    grdPrintSet.Cells[5, 1] := L1L4;
+    grdPrintSet.Cells[1, 2] := L2L1;
+    grdPrintSet.Cells[2, 2] := L2L2;
+    grdPrintSet.Cells[3, 2] := L2L3;
+    grdPrintSet.Cells[4, 2] := L2bc;
+    grdPrintSet.Cells[5, 2] := L2L4;
+
+end;
+
 procedure TLabeldruck.edtSampleNrStartChange(Sender: TObject);
 begin
  // add the value to another edit field
@@ -555,12 +851,20 @@ end;
 
 procedure TLabeldruck.FormShow(Sender: TObject);
 begin
-  Labeldruck.Caption := 'Label Printing ' + Version;
+  Labeldruck.Caption := 'Label Printing ' + myVersion;
 
   // perform some kind of startup procedure
   // maybe checking the database connection
   // and the connection to the server for the graphitization labels
 
+  // do some printer setup
+  // the only printer supported is "Citizen_CLP_631"
+  // show the currently selected printer by the operating system
+  // after startup this will be the default printer
+  lbl_printerName.Caption := Printer.Printers[Printer.PrinterIndex];
+  // However set the MyPrinterName variable to 'none' to show that a printer wasn't selected yet and needs to be selected
+  MyPrinterName := 'none';
+  //ShowMessage(MyPrinterName);
 end;
 
 function TLabeldruck.GetMaxPrepNrBySampleNr(sample_nr: integer): integer;
@@ -783,20 +1087,11 @@ end;
 procedure TLabeldruck.btnPrintClick(Sender: TObject);
 // print sample labels
 var
-  UserLabel, UserLabel1, UserLabel2, User, UserLabelNr, Count, Number, PrintString: string;
+  UserLabel, UserLabel1, UserLabel2, User, UserNew, UserLabelNr, Count, Number, SampleIDString: string;
+  SampleNumber, ReturnSample, CNIsotopA: string;
   Barcode: boolean;
   i: integer;
 begin
-
-//      if Length(User_Label) > 20 then
-//      begin
-//        UserLabel1 := Copy(User_Label, 0, 18);
-//        UserLabel2 := Copy(User_Label, 19, Length(User_Label));
-//      end else
-//      begin
-//        UserLabel2 := Copy(User_Label, 0, 20); //Copy: Beschr‰nken auf 20 Zeichen
-//        UserLabel1 := ' ';
-//      end;
 
   If DBGrid1.DataSource.DataSet.RecordCount >0 Then
   Begin
@@ -808,6 +1103,10 @@ begin
       //  UserLabelNr := Copy(FDQueryDbSample.Fields.FieldByName('User_Label_nr').AsString, 0, 20);
       // set dataset to first value
       User := Copy(DBGrid1.DataSource.DataSet.Fields.FieldByName('last_name').AsString, 0, 20);
+      // replace Umlaute
+      UserNew := ReplaceUmlaute(User);
+      //ShowMessage(User + ' -- ' + UserNew);
+
       Number := edspCopyCount.Text;
       case StringToCaseSelect(Number, //Umwandeln von Text zu den Anzahl Kopien
         ['2', '4', '6', '8', '10']) of
@@ -827,17 +1126,82 @@ begin
           UserLabel2 := Copy(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 0, 20); //Copy: Beschr‰nken auf 20 Zeichen
           UserLabel1 := ' ';
         end;
-      PrintString := DBGrid1.DataSource.DataSet.Fields.FieldByName('sample_nr').AsString + '.' + edtPrepStart.Text + '.' + edtTargetStart.Text;
+      SampleNumber := DBGrid1.DataSource.DataSet.Fields.FieldByName('sample_nr').AsString;
+      SampleIDString := DBGrid1.DataSource.DataSet.Fields.FieldByName('sample_nr').AsString + '.' + edtPrepStart.Text + '.' + edtTargetStart.Text;
       Barcode := cbBarcode.Checked; //Barcode wird gedruckt
+      Try
+        ReturnSample := DBGrid1.DataSource.DataSet.Fields.FieldByName('ReturnSample').AsString; // this is a flag, can only be '0' or '1'
+        //showmessage(ReturnSample);
+      Except
+        ReturnSample := '0';
+        //showmessage('Error');
+      End;
+      Try
+        CNIsotopA := DBGrid1.DataSource.DataSet.Fields.FieldByName('CNAna').AsString; // this is a flag, can only be '0' or '1'
+      Except
+        CNIsotopA := '0';
+      End;
     {  PrintLabelVar('Citizen_CLP_631', 'MAMS ' + edInput.Text + ' - ', UserLabel, //Printer, L1, L2
-        UserLabelNr, User, 'Q000' + Count, edInput.Text, L1L1, L1L2, L1L3, L1L4, L1bc,
+        UserLabelNr, UserNew, 'Q000' + Count, edInput.Text, L1L1, L1L2, L1L3, L1L4, L1bc,
         L2L1, L2L2, L2L3, L2L4, L2bc, Barcode);}
-      PrintLabelVar('Citizen_CLP_631', PrintString, UserLabel1, UserLabel2, //Printer, L1, L2
-        User, 'Q000' + Count, edtSampleNrStart.Text, L1L1, L1L2, L1L3, L1L4, L1bc,
-        L2L1, L2L2, L2L3, L2L4, L2bc, Barcode);
+
+    // ####################################
+      // send print string to printer
+      // select the printer first (either selected already or dialog will appear)
+      // this procedures sets the MyPrinterName Variable
+      SelectPrinter;
+      // Print
+      PrintLabelVar(MyPrinterName, SampleIDString, UserLabel1, UserLabel2, //Printer, L1, L2
+        UserNew, 'Q000' + Count, SampleNumber, L1L1, L1L2, L1L3, L1L4, L1bc,
+        L2L1, L2L2, L2L3, L2L4, L2bc, Barcode, ReturnSample, CNIsotopA);
       DBGrid1.DataSource.DataSet.Next;
   End;
   End;
+end;
+
+procedure TLabeldruck.btnPrintCustomClick(Sender: TObject);
+// print custom Text to label
+var
+Number, Count: string;
+Barcode: boolean;
+
+begin
+    // those are constants regarding some label settings
+    L1L1 := lbledLabel1Line1.Text;
+    L1L2 := lbledLabel1Line2.Text;
+    L1L3 := lbledLabel1Line3.Text;
+    L1L4 := lbledLabel1Line4.Text;
+    L1bc := lbledLabel1bc.Text;
+    L2L1 := lbledLabel2Line1.Text;
+    L2L2 := lbledLabel2Line2.Text;
+    L2L3 := lbledLabel2Line3.Text;
+    L2L4 := lbledLabel2Line4.Text;
+    L2bc := lbledLabel2bc.Text;
+
+    // number of labels
+    Number := edspCopyCountCustom.Text;
+    // get correct setting for the number of copies
+    case StringToCaseSelect(Number, //Umwandeln von Text zu den Anzahl Kopien
+      ['2', '4', '6', '8', '10']) of
+      0: Count := '1';
+      1: Count := '2';
+      2: Count := '3';
+      3: Count := '4';
+      4: Count := '5';
+    end;
+
+    // don't print barcode here
+    Barcode := False;
+
+    // send data to printer
+    // not sure what string at position '1234' is used for, should be sampleNumber don't know why
+    // select the printer first (either selected already or dialog will appear)
+    // this procedures sets the MyPrinterName Variable
+    SelectPrinter;
+    PrintLabelVar(MyPrinterName, CustomEditL1.Text, CustomEditL2.Text, CustomEditL3.Text, //Printer, L1, L2
+      CustomEditL4.Text, 'Q000' + Count, '1234', L1L1, L1L2, L1L3, L1L4, L1bc,
+      L2L1, L2L2, L2L3, L2L4, L2bc, Barcode, '0', '0');
+
 end;
 
 procedure TLabeldruck.btnPrintGraphClick(Sender: TObject);
@@ -853,7 +1217,9 @@ end;
 
 procedure TLabeldruck.btnCancelClick(Sender: TObject); //Programm schlieﬂen
 begin
+  JvFormStorage1.SaveFormPlacement;
   Close;
+
 end;
 end.
 

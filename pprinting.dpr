@@ -11,7 +11,6 @@ uses
 
 begin
   Application.Initialize;
-  TStyleManager.TrySetStyle('Turquoise Gray');
   Application.CreateForm(TLabeldruck, Labeldruck);
   Application.Run;
 end.
