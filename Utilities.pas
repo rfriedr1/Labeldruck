@@ -39,19 +39,19 @@ implementation
 
 const
    //Linie 1 - 4
-  yAddressLine1: string = '0046'; // inch; Abstand in Y-Richtung (Linie 1)
-  yAddressLine2: string = '0032'; // inch; Abstand in Y-Richtung (Linie 2)
-  yAddressLine3: string = '0021'; // inch; Abstand in Y-Richtung (Linie 3)
-  yAddressLine4: string = '0010'; // inch; Abstand in Y-Richtung (Linie 4)
+  yAddressLine1: string = '0046'; // inch; Abstand in Y-Richtung (Linie 1) '0046'
+  yAddressLine2: string = '0026'; // inch; Abstand in Y-Richtung (Linie 2) '0032'
+  yAddressLine3: string = '0015'; // inch; Abstand in Y-Richtung (Linie 3) '0021'
+  yAddressLine4: string = '0004'; // inch; Abstand in Y-Richtung (Linie 4) '0010'
   Label1xAddressLine1: string = '0008'; // inch; Abstand in X-Richtung (Label 1, Linie 1)
   Label1xAddressLine2: string = '0008'; // inch; Abstand in X-Richtung (Label 1, Linie 2,3)
   Label2xAddressLine1: string = '0140'; // inch; Abstand in X-Richtung (Label 2, Linie 1)
   Label2xAddressLine2: string = '0140'; // inch; Abstand in X-Richtung (Label 2, Linie 2,3)
    //Barcode
   //bcyAddress: string = '0006'; //inch, Abstand in Y-Richtung (barcode), barcode at the bottom
-  bcyAddress: string = '0040'; //inch, Abstand in Y-Richtung (barcode), barcode at the top
-  bcLabel1xAddress: string = '0017'; //inch
-  bcLabel2xAddress: string = '0150'; //inch
+  bcyAddress: string = '0039'; //inch, Abstand in Y-Richtung (barcode), barcode at the top
+  bcLabel1xAddress: string = '0015'; //inch
+  bcLabel2xAddress: string = '0148'; //inch
   ReturnSampleyAddress: string = '0048';
 
 procedure PrintRAW(PrinterName, PrintText: String);
@@ -209,14 +209,14 @@ var
   // 1X11,000,row(xxxx), column(xxxx)
   begin
     // Result := #$0D + #$0A + '1X1100000450013l01030001' + #$0D + #$0A; //dicke Linie
-    Result := #$0D + #$0A + '1X1100000450013l00850001' + #$0D + #$0A; //dicke kurze Linie
+    Result := #$0D + #$0A + '1X1100000450013l00750001' + #$0D + #$0A; //dicke kurze Linie
   end;
 
   function FixedLineVarHeader2: string;
   begin
     // Result := #$0D + #$0A + '1X1100000450145l01030001' + #$0D + #$0A; //dicke Linie; 1X11000: fixed for Lines, 0045:X, 0145:Y, l01:size, 030:horiz. ausdehn., 001:vertikale ausd
     // Result := #$0D + #$0A + '1X1100000450145l01030001' + #$0D + #$0A; //dicke Linie; 1X11000: fixed for Lines, 0045:X, 0145:Y, l01:size, 025:horiz. ausdehn., 001:vertikale ausd
-    Result := #$0D + #$0A + '1X1100000450145l0850001' + #$0D + #$0A;  // dicke kurze Linie
+    Result := #$0D + #$0A + '1X1100000450145l0750001' + #$0D + #$0A;  // dicke kurze Linie
   end;
 
   function BarcodeVarHeader: string;

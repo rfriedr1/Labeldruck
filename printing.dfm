@@ -210,7 +210,6 @@ object Labeldruck: TLabeldruck
             ShowHint = True
             TabOrder = 0
             OnClick = btnPrintClick
-            ExplicitLeft = 618
           end
           object edspCopyCount: TJvSpinEdit
             Left = 558
@@ -229,7 +228,6 @@ object Labeldruck: TLabeldruck
             ParentShowHint = False
             ShowHint = True
             TabOrder = 1
-            ExplicitLeft = 544
           end
           object cbBarcode: TCheckBox
             Left = 357
@@ -315,7 +313,7 @@ object Labeldruck: TLabeldruck
           object Label10: TLabel
             Left = 250
             Top = 29
-            Width = 41
+            Width = 36
             Height = 16
             Anchors = [akRight, akBottom]
             Caption = 'Labels'
@@ -1473,6 +1471,7 @@ object Labeldruck: TLabeldruck
     AppStorage = JvAppIniFileStorage1
     AppStoragePath = 'values\'
     StoredProps.Strings = (
+      'lbledLabel1bc.Text'
       'lbledLabel1Line1.Text'
       'lbledLabel1Line2.Text'
       'lbledLabel1Line3.Text'
@@ -1536,8 +1535,8 @@ object Labeldruck: TLabeldruck
     Top = 67
   end
   object PrinterSetupDialog1: TPrinterSetupDialog
-    Left = 592
-    Top = 112
+    Left = 680
+    Top = 128
   end
   object PrintDialog1: TPrintDialog
     Left = 681

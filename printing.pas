@@ -17,7 +17,7 @@ type
   TlblStatus = (busy, saved, notsaved);
 
 const
-  myVersion = 'v1.9.4 2020-05-05';
+  myVersion = 'v1.9.5 2021-03-24';
 
 type
   TLabeldruck = class(TForm)
@@ -349,7 +349,7 @@ begin
   lbledLabel1Line1.Text := '0011';
   lbledLabel1Line2.Text := '0011';
   lbledLabel1Line3.Text := '0011';
-  lbledLabel1bc.Text := '0099';
+  lbledLabel1bc.Text := '0098';
 end;
 
 procedure TLabeldruck.btnResetRightClick(Sender: TObject); //Wiederherstellen Label2 Einstellungen
@@ -357,7 +357,7 @@ begin
   lbledLabel2Line1.Text := '0144';
   lbledLabel2Line2.Text := '0144';
   lbledLabel2Line3.Text := '0144';
-  lbledLabel2bc.Text := '0232';
+  lbledLabel2bc.Text := '0231';
 end;
 
 procedure TLabeldruck.btnSaveClick(Sender: TObject);
