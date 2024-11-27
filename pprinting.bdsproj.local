@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2010.03.01 16:20:02.906.pas,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\TABPGDLG.pas=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages.pas</Transaction>
+    <Transaction>2010.03.01 16:20:02.906.dfm,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\TABPGDLG.dfm=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages.dfm</Transaction>
+    <Transaction>2010.03.01 16:20:13.000.bdsproj,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Project1.bdsproj=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\pLabeldruckTabPages.bdsproj</Transaction>
+    <Transaction>2010.04.23 14:05:00.761.pas,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages\LabeldruckTabPages.pas=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckMAMS\printing.pas</Transaction>
+    <Transaction>2010.04.23 14:05:00.761.dfm,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages\LabeldruckTabPages.dfm=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckMAMS\printing.dfm</Transaction>
+    <Transaction>2010.04.23 14:05:11.777.bdsproj,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages\pLabeldruckTabPages.bdsproj=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckMAMS\pprinting.bdsproj</Transaction>
+    <Transaction>2013.02.21 15:21:32.817.pas,C:\Users\bkromer\Borland Studio Projects\common\Utilities.pas=</Transaction>
+  </Transactions>
+</BorlandProject>

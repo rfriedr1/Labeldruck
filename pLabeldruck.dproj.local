@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Labeldruck.pas=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Unit7.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.bdsproj,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Labeldruck\pLabeldruck.bdsproj=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\pLabeldruck.bdsproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\common\Utilities.pas=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Unit7.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Labeldruck\Labeldruck.pas=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Labeldruck.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.dfm,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Labeldruck\Labeldruck.dfm=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Labeldruck.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.dfm,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Labeldruck.dfm=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Unit7.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.bdsproj,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\pLabeldruck.bdsproj=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Project7.bdsproj</Transaction>
+  </Transactions>
+</BorlandProject>

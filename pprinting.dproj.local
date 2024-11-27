@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.bdsproj,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\pLabeldruckTabPages.bdsproj=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\Project1.bdsproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.dfm,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages.dfm=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\TABPGDLG.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.dfm,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckMAMS\printing.dfm=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages\LabeldruckTabPages.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.823,R:\Software\SourceCode\Labeldruck\labelprint.dproj=R:\Software\SourceCode\Labeldruck\pprinting.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.bdsproj,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckMAMS\pprinting.bdsproj=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages\pLabeldruckTabPages.bdsproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages.pas=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\TABPGDLG.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\bkromer\Borland Studio Projects\common\Utilities.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckMAMS\printing.pas=C:\Dokumente und Einstellungen\iup\Eigene Dateien\Borland Studio Projects\LabeldruckTabPages\LabeldruckTabPages.pas</Transaction>
+    <Transaction>2024.11.27 19:03:25.870,R:\Software\SourceCode\Labeldruck\pprinting.dproj=R:\Software\SourceCode\Labeldruck\labelprint.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
