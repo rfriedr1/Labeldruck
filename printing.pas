@@ -17,7 +17,7 @@ type
   TlblStatus = (busy, saved, notsaved);
 
 const
-  myVersion = 'v1.9.9 2024-11-27';
+  myVersion = 'v1.9.9 2024-11-29';
 
 type
   TLabeldruck = class(TForm)
@@ -597,9 +597,12 @@ procedure TLabeldruck.ButtonPrintBatchLabelsClick(Sender: TObject);
 Var
   UserLabel, UserLabel1, UserLabel2, User, UserNew, UserLabelNr, Count, Number, SampleIDString: string;
   SampleNumber, PrepNumber, TargetNumber, ReturnSample, CNIsotopA, LabelsTopOffset: string;
-  Barcode, printerSelected: boolean;
+  Barcode, showPrinterDialog, printerSelected: boolean;
   i: integer;
 begin
+
+  showPrinterDialog := true; // this is the start of the print job, always ask for printer when print button was clicked
+
   If DBGridSamplesInBatch.DataSource.DataSet.RecordCount >0 Then
   Begin
         // go through all Records and print them
@@ -660,7 +663,12 @@ begin
           // send print string to printer
           // select the printer first (either selected already or dialog will appear)
           // this procedures sets the MyPrinterName Variable
-          printerSelected := SelectPrinter;
+      if showPrinterDialog = true then
+        begin
+          printerSelected := SelectPrinter;      // false if no printer was selected
+          showPrinterDialog := false;         // no need to show the printer dialog again for this print jop
+        end;
+
           // Print
           if printerSelected = True then
           Begin
@@ -683,8 +691,10 @@ procedure TLabeldruck.PrintGraphClick(Sender: TObject);
 var
   i: integer;
   UserLabel, UserLabel1, UserLabel2, User, UserNew, UserLabelNr, Count, Number, PrintString: string;
-  Barcode, printerSelected: boolean;
+  Barcode, showPrinterDialog, printerSelected: boolean;
 begin
+
+  showPrinterDialog := true; // this is the start of the print job, always ask for printer when print button was clicked
 
   L1L1 := lbledLabel1Line1.Text;
   L1L2 := lbledLabel1Line2.Text;
@@ -731,7 +741,11 @@ for i := 1 to StrGrdPrintGraph.RowCount-1 do begin
       // ############################
       // select the printer first (either selected already or dialog will appear)
       // this procedures sets the MyPrinterName Variable
-      printerSelected := SelectPrinter;
+      if showPrinterDialog = true then
+        begin
+          printerSelected := SelectPrinter;      // false if no printer was selected
+          showPrinterDialog := false;         // no need to show the printer dialog again for this print jop
+        end;
 
       if printerSelected = True then
         begin
@@ -1285,9 +1299,12 @@ procedure TLabeldruck.btnPrintCustomClick(Sender: TObject);
 // print custom Text to label
 var
 Number, Count: string;
-Barcode, printerSelected: boolean;
+Barcode, showPrinterDialog, printerSelected: boolean;
 
 begin
+
+  showPrinterDialog := true; // this is the start of the print job, always ask for printer when print button was clicked
+
     // those are constants regarding some label settings
     L1L1 := lbledLabel1Line1.Text;
     L1L2 := lbledLabel1Line2.Text;
@@ -1322,7 +1339,11 @@ begin
     // not sure what string at position '1234' is used for, should be sampleNumber don't know why
     // select the printer first (either selected already or dialog will appear)
     // this procedures sets the MyPrinterName Variable
-    printerSelected := SelectPrinter;
+      if showPrinterDialog = true then
+        begin
+          printerSelected := SelectPrinter;      // false if no printer was selected
+          showPrinterDialog := false;         // no need to show the printer dialog again for this print jop
+        end;
 
     if printerSelected = True then
       begin
