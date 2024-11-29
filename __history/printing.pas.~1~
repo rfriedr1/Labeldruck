@@ -765,12 +765,13 @@ begin
 end;
 
 function TLabeldruck.SelectPrinter: Boolean;
+
 begin
   // select printer first if it wasn't selected already (duriong this runtime of the program)
   // if user clicks cancel, the function resturns false
   Result := True;
-  //if (MyPrinterName = 'none') then
-  //  begin
+  if (MyPrinterName = 'none') then
+    begin
       // MyPrinterName variable stores the printer name. After startup of the program it will be 'none'
       // showing that a printer wasn't selected yet
       Result := PrinterSetupDialog1.Execute;   // false if "cancel" selected
@@ -780,7 +781,7 @@ begin
           MyPrinterName := Printer.Printers[Printer.PrinterIndex];
           //showmessage(MyPrinterName);
         end;
-    //end;
+    end;
   end;
 
 procedure TLabeldruck.TabControlMainChange(Sender: TObject);
@@ -1178,11 +1179,9 @@ procedure TLabeldruck.btnPrintClick(Sender: TObject);
 var
   UserLabel, UserLabel1, UserLabel2, User, UserNew, UserLabelNr, Count, Number, SampleIDString: string;
   SampleNumber, ReturnSample, CNIsotopA, ProjectNr, step1_method, step2_method, step3_method, step4_method, PrepMethods: string;
-  Barcode, showPrinterDialog, printerSelected: boolean;
+  Barcode, printerSelected: boolean;
   i: integer;
 begin
-
-  showPrinterDialog := true; // this is the start of the print job, always ask for printer when print button was clicked
 
   If DBGrid1.DataSource.DataSet.RecordCount >0 Then
   Begin
@@ -1261,13 +1260,9 @@ begin
       // send print string to printer
       // select the printer first (either selected already or dialog will appear)
       // this procedures sets the MyPrinterName Variable
-      if showPrinterDialog = true then
-        begin
-          printerSelected := SelectPrinter;      // false if no printer was selected
-          showPrinterDialog := false;         // no need to show the printer dialog again for this print jop
-        end;
+      printerSelected := SelectPrinter;      // false if no printer selected
 
-      // Print if printer was actually selected and not canceled
+      // Print if printer was actually selected and noc canceled
       if printerSelected = True then
         begin
           PrintLabelVar(MyPrinterName, SampleIDString, UserLabel1, UserLabel2, //Printer, L1, L2
