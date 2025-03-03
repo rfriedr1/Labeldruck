@@ -17,7 +17,7 @@ type
   TlblStatus = (busy, saved, notsaved);
 
 const
-  myVersion = 'v1.9.9 2025-03-03';
+  myVersion = 'v1.9.9 2024-11-29';
 
 type
   TLabeldruck = class(TForm)
@@ -1220,14 +1220,14 @@ begin
         3: Count := '4';
         4: Count := '5';
       end;
-      if Length(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString) > 14 then
+      if Length(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString) > 20 then
         begin
-          UserLabel1 := Copy(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 0, 14);
-          UserLabel2 := Copy(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 15, Length(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString));
+          UserLabel1 := Copy(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 0, 18);
+          UserLabel2 := Copy(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 19, Length(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString));
         end
       else
         begin
-          UserLabel1 := Copy(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 0, 14); //Copy: Beschränken auf 20 Zeichen
+          UserLabel1 := Copy(DBGrid1.DataSource.DataSet.Fields.FieldByName('user_label').AsString, 0, 20); //Copy: Beschränken auf 20 Zeichen
           UserLabel2 := ' ';
         end;
       SampleNumber := DBGrid1.DataSource.DataSet.Fields.FieldByName('sample_nr').AsString;
