@@ -11,6 +11,7 @@ object Labeldruck: TLabeldruck
   Font.Name = 'Tahoma'
   Font.Style = []
   Position = poScreenCenter
+  OnCreate = FormCreate
   OnShow = FormShow
   TextHeight = 16
   object Panel1: TPanel
@@ -37,7 +38,7 @@ object Labeldruck: TLabeldruck
       Top = 5
       Width = 880
       Height = 640
-      ActivePage = TabSheet1
+      ActivePage = TabSheet2
       Align = alClient
       Style = tsFlatButtons
       TabHeight = 50
@@ -1305,6 +1306,7 @@ object Labeldruck: TLabeldruck
             EditLabel.Caption = 'Top Offset'
             TabOrder = 19
             Text = '0218'
+            OnChange = lbledLablesOffsetTopChange
           end
         end
       end
@@ -1541,8 +1543,8 @@ object Labeldruck: TLabeldruck
       'lbledLabel2Line5.Text'
       'lbledLablesOffsetTop.Text')
     StoredValues = <>
-    Left = 672
-    Top = 496
+    Left = 800
+    Top = 384
   end
   object WaitCursor: TFDGUIxWaitCursor
     Provider = 'Forms'

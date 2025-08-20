@@ -17,7 +17,7 @@ type
   TlblStatus = (busy, saved, notsaved);
 
 const
-  myVersion = 'v1.9.9 2025-03-03';
+  myVersion = 'v1.9.9 2025-03-12';
 
 type
   TLabeldruck = class(TForm)
@@ -179,6 +179,8 @@ type
     procedure ButtonPrintBatchLabelsClick(Sender: TObject);
     procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure FormCreate(Sender: TObject);
+    procedure lbledLablesOffsetTopChange(Sender: TObject);
   private
     User_Label, target_nr, prep_nr: string;
     counter, PrintPosition: integer;
@@ -603,6 +605,20 @@ begin
 
   showPrinterDialog := true; // this is the start of the print job, always ask for printer when print button was clicked
 
+  L1L1 := lbledLabel1Line1.Text;
+  L1L2 := lbledLabel1Line2.Text;
+  L1L3 := lbledLabel1Line3.Text;
+  L1L4 := lbledLabel1Line4.Text;
+  L1L5 := lbledLabel1Line5.Text;
+  L1bc := lbledLabel1bc.Text;
+  L2L1 := lbledLabel2Line1.Text;
+  L2L2 := lbledLabel2Line2.Text;
+  L2L3 := lbledLabel2Line3.Text;
+  L2L4 := lbledLabel2Line4.Text;
+  L2L5 := lbledLabel2Line5.Text;
+  L2bc := lbledLabel2bc.Text;
+  LabelsTopOffset := lbledLablesOffsetTop.Text;
+
   If DBGridSamplesInBatch.DataSource.DataSet.RecordCount >0 Then
   Begin
         // go through all Records and print them
@@ -951,6 +967,40 @@ begin
   // FDConnection1.Params.SaveToFile('connections.ini');       // password is saved as plain text!!!!!!!
 end;
 
+procedure TLabeldruck.FormCreate(Sender: TObject);
+begin
+ // check for the presence of command line parameters
+ // this is used for defining the use of a specific ini file when using different settings for different printers
+ // the command line parameter would be give in the link when starting the program
+ if ParamCount = 0 then
+     // no parameter is give
+     // use the predefined ini-file called "persistent.ini"
+     // nothing to do here
+    // ShowMessage('No parameter given.')
+  else
+  begin
+    if ParamCount > 0 then
+    // at least on aparemter is given
+    // use the first one which should be the filename of the ini-file that should be used
+    // normally this would be "persistent.ini"
+
+    // ShowMessage('at least one parameter provided. This is the first one: ' + ParamStr(1));
+
+    // check first if the file excists
+    // if so use the filename as the one to retrive and save the ini-information from and to
+    if FileExists(ParamStr(1)) then
+      begin
+      //ShowMessage('Current working folder: ' + GetCurrentDir);
+      // ShowMessage('File exists: ' + ParamStr(1));
+      // set the filename of the INI-File to the parameter given
+      JvAppIniFileStorage1.FileName := ParamStr(1);
+      end
+    else
+      //ShowMessage('Current working folder: ' + GetCurrentDir);
+      ShowMessage('Error: ini file does not exist: ' + ParamStr(1));
+  end;
+end;
+
 procedure TLabeldruck.FormShow(Sender: TObject);
 begin
   Labeldruck.Caption := 'Label Printing ' + myVersion;
@@ -1041,6 +1091,12 @@ begin
 end;
 
 procedure TLabeldruck.lbledLabel2Line3Change(Sender: TObject);
+begin
+  ChangeLabel(notsaved);
+  btnSave.Enabled := true;
+end;
+
+procedure TLabeldruck.lbledLablesOffsetTopChange(Sender: TObject);
 begin
   ChangeLabel(notsaved);
   btnSave.Enabled := true;
@@ -1197,6 +1253,20 @@ var
 begin
 
   showPrinterDialog := true; // this is the start of the print job, always ask for printer when print button was clicked
+
+  L1L1 := lbledLabel1Line1.Text;
+  L1L2 := lbledLabel1Line2.Text;
+  L1L3 := lbledLabel1Line3.Text;
+  L1L4 := lbledLabel1Line4.Text;
+  L1L5 := lbledLabel1Line5.Text;
+  L1bc := lbledLabel1bc.Text;
+  L2L1 := lbledLabel2Line1.Text;
+  L2L2 := lbledLabel2Line2.Text;
+  L2L3 := lbledLabel2Line3.Text;
+  L2L4 := lbledLabel2Line4.Text;
+  L2L5 := lbledLabel2Line5.Text;
+  L2bc := lbledLabel2bc.Text;
+  LabelsTopOffset := lbledLablesOffsetTop.Text;
 
   If DBGrid1.DataSource.DataSet.RecordCount >0 Then
   Begin
